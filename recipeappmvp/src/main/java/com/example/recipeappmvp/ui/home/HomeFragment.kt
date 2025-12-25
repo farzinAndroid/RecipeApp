@@ -1,0 +1,105 @@
+package com.example.recipeappmvp.ui.home
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemSelectedListener
+import android.widget.ArrayAdapter
+import androidx.fragment.app.Fragment
+import coil.load
+import com.example.foodappmvp.utils.isNetworkAvailable
+import com.example.recipeappmvp.R
+import com.example.recipeappmvp.data.model.ResponseFoodList
+import com.example.recipeappmvp.databinding.FragmentHomeBinding
+import com.jakewharton.rxbinding4.widget.textChanges
+import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class HomeFragment : Fragment(), HomeContracts.View {
+
+    //Binding
+    private lateinit var binding: FragmentHomeBinding
+
+    @Inject
+    lateinit var presenter: HomePresenter
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentHomeBinding.inflate(layoutInflater)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        //InitViews
+        binding.apply {
+            //Call api
+            presenter.getRandomFood()
+            //Search
+            searchEdt.textChanges()
+                .skipInitialValue()
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (it.toString().length > 1) {
+                        //Call Api
+
+                    }
+                }
+            //Filter
+            createFilterFoodSpinnerList()
+        }
+    }
+
+
+    private fun createFilterFoodSpinnerList() {
+        val filters = listOf('A'..'Z').flatten()
+        val adapter = ArrayAdapter(requireContext(), R.layout.item_spinner, filters)
+        adapter.setDropDownViewResource(R.layout.item_spinner_list)
+        binding.filterSpinner.adapter = adapter
+        binding.filterSpinner.onItemSelectedListener = object : OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                //Call api
+
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
+    }
+
+    override fun showRandomFood(data: ResponseFoodList) {
+        binding.headerImg.load(data.meals[0].strMealThumb)
+    }
+
+    override fun showLoading() {
+
+    }
+
+    override fun hideLoading() {
+
+    }
+
+    override fun checkInternet(): Boolean {
+        return requireContext().isNetworkAvailable()
+    }
+
+    override fun internetError(hasInternet: Boolean) {
+    }
+
+    override fun serverError(message: String) {
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+        presenter.onStop()
+    }
+}
