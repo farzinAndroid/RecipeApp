@@ -17,6 +17,7 @@ import com.example.recipeappmvp.data.model.ResponseCategoriesList
 import com.example.recipeappmvp.data.model.ResponseFoodList
 import com.example.recipeappmvp.databinding.FragmentHomeBinding
 import com.example.recipeappmvp.ui.home.adapter.CategoriesListAdapter
+import com.example.recipeappmvp.ui.home.adapter.FoodsListAdapter
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.textChanges
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,6 +37,9 @@ class HomeFragment : Fragment(), HomeContracts.View {
     @Inject
     lateinit var categoriesListAdapter: CategoriesListAdapter
 
+    @Inject
+    lateinit var foodsListAdapter: FoodsListAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,6 +55,7 @@ class HomeFragment : Fragment(), HomeContracts.View {
             //Call api
             presenter.getRandomFood()
             presenter.getCategoriesList()
+            presenter.getFoodsListByLetter("A")
             //Search
             searchEdt.textChanges()
                 .skipInitialValue()
@@ -75,7 +80,7 @@ class HomeFragment : Fragment(), HomeContracts.View {
         binding.filterSpinner.adapter = adapter
         binding.filterSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                //Call api
+                presenter.getFoodsListByLetter(filters[position].toString())
 
             }
 
@@ -97,6 +102,15 @@ class HomeFragment : Fragment(), HomeContracts.View {
         }
     }
 
+    override fun showFoodsListByLetter(foodsList: ResponseFoodList) {
+        binding.foodsList.apply {
+            foodsListAdapter.setData(foodsList.meals)
+            adapter = foodsListAdapter
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL,false)
+
+        }
+    }
+
     override fun showLoading() {
         binding.apply {
             homeCategoryLoading.visibility = View.VISIBLE
@@ -108,6 +122,18 @@ class HomeFragment : Fragment(), HomeContracts.View {
         binding.apply {
             homeCategoryLoading.visibility = View.GONE
             categoryList.visibility = View.VISIBLE
+        }
+    }
+
+    override fun showFoodsListLoading(isLoading: Boolean) {
+        binding.apply {
+            if (isLoading){
+                homeFoodsLoading.visibility = View.VISIBLE
+                foodsList.visibility = View.GONE
+            }else{
+                homeFoodsLoading.visibility = View.GONE
+                foodsList.visibility = View.VISIBLE
+            }
         }
     }
 

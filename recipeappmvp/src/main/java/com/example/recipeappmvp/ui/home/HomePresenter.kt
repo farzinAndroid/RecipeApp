@@ -50,13 +50,41 @@ class HomePresenter @Inject constructor(
                     when (response.code()) {
                         in 200..202 -> {
                             response.body()?.let {
-                                view.showCategoriesList(it)
+                                if (it.categories.isNotEmpty()){
+                                    view.showCategoriesList(it)
+                                }
                             }
                         }
                     }
 
                 }, {
                     view.hideLoading()
+                    view.serverError(it.message.toString())
+                })
+        }else{
+            view.internetError(false)
+        }
+    }
+
+    override fun getFoodsListByLetter(letter: String) {
+        if (view.checkInternet()) {
+            view.showFoodsListLoading(true)
+            disposable = repository.getFoodListByLetter(letter)
+                .applyIoScheduler()
+                .subscribe({ response ->
+                    view.showFoodsListLoading(false)
+                    when (response.code()) {
+                        in 200..202 -> {
+                            response.body()?.let {
+                                if (it.meals.isNotEmpty()){
+                                    view.showFoodsListByLetter(it)
+                                }
+                            }
+                        }
+                    }
+
+                }, {
+                    view.showFoodsListLoading(false)
                     view.serverError(it.message.toString())
                 })
         }else{

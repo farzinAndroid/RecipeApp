@@ -1,0 +1,102 @@
+package com.example.recipeappmvp.ui.home.adapter
+
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import com.example.recipeappmvp.data.model.ResponseCategoriesList.Category
+import com.example.recipeappmvp.data.model.ResponseFoodList.Meal
+import com.example.recipeappmvp.databinding.FoodItemBinding
+import javax.inject.Inject
+
+class FoodsListAdapter @Inject constructor() : RecyclerView.Adapter<FoodsListAdapter.MyViewHolder>()  {
+
+    private lateinit var binding: FoodItemBinding
+    private lateinit var context: Context
+    private var foodsListList = emptyList<Meal>()
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+        binding = FoodItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+        context = parent.context
+        return MyViewHolder()
+    }
+
+    override fun getItemCount(): Int {
+        return foodsListList.size
+    }
+
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+        holder.bind(foodsListList[position])
+        holder.setIsRecyclable(true)
+    }
+
+
+    inner class MyViewHolder() : RecyclerView.ViewHolder(binding.root){
+        fun bind(item: Meal){
+            binding.apply {
+
+                /*root.setOnClickListener {
+                    onItemClickListener?.let {
+                        it(item)
+                    }
+                }*/
+
+                itemFoodsImg.load(item.strMealThumb){
+                    crossfade(true)
+                    crossfade(500)
+                }
+
+                itemFoodsTitle.text = item.strMeal
+                itemFoodsCategory.text = item.strCategory
+                itemFoodsArea.text = item.strArea
+
+                if (item.strSource != null){
+                    itemFoodsCount.visibility = ViewGroup.VISIBLE
+                }else{
+                    itemFoodsCount.visibility = ViewGroup.GONE
+                }
+
+
+            }
+        }
+    }
+
+
+    private var onItemClickListener : ((Meal, String) ->  Unit)? = null
+
+    fun setOnClickListener(listener:((Meal,String) ->  Unit)) {
+        onItemClickListener = listener
+    }
+
+    fun setData(data:List<Meal>){
+        val foodsDiffUtils = FoodsDiffUtils(foodsListList,data)
+        val diffUtils = DiffUtil.calculateDiff(foodsDiffUtils)
+        foodsListList = data
+        diffUtils.dispatchUpdatesTo(this)
+    }
+
+
+    class FoodsDiffUtils(private val oldItem:List<Meal>, private val newItem:List<Meal>) : DiffUtil.Callback(){
+        override fun getOldListSize(): Int {
+            return oldItem.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newItem.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldItem[oldItemPosition] == newItem[newItemPosition]
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldItem[oldItemPosition] == newItem[newItemPosition]
+        }
+    }
+
+
+
+}
