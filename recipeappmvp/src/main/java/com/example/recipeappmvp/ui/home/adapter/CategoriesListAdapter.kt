@@ -8,19 +8,22 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.recipeappmvp.data.model.ResponseCategoriesList.Category
 import com.example.recipeappmvp.databinding.CategoryItemBinding
+import com.example.ui.R
 import javax.inject.Inject
 
 class CategoriesListAdapter @Inject constructor() : RecyclerView.Adapter<CategoriesListAdapter.MyViewHolder>()  {
 
-    private lateinit var binding: CategoryItemBinding
+//    private lateinit var binding: CategoryItemBinding
     private lateinit var context: Context
     private var categoriesList = emptyList<Category>()
 
+    private var selectedItem = -1
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        binding = CategoryItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         context = parent.context
-        return MyViewHolder()
+        val binding = CategoryItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MyViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
@@ -33,22 +36,30 @@ class CategoriesListAdapter @Inject constructor() : RecyclerView.Adapter<Categor
     }
 
 
-    inner class MyViewHolder() : RecyclerView.ViewHolder(binding.root){
+    inner class MyViewHolder(private val binding: CategoryItemBinding) : RecyclerView.ViewHolder(binding.root){
+
         fun bind(item: Category){
             binding.apply {
 
-                /*root.setOnClickListener {
-                    onItemClickListener?.let {
-                        it(item)
-                    }
-                }*/
-
-                itemCategoriesImg.load(item.strCategoryThumb){
+                itemCategoriesImg.load(item.strCategoryThumb) {
                     crossfade(true)
                     crossfade(500)
                 }
-
                 itemCategoriesTxt.text = item.strCategory
+                //Click
+                root.setOnClickListener {
+                    selectedItem = adapterPosition
+                    notifyDataSetChanged()
+                    onItemClickListener?.let {
+                        it(item)
+                    }
+                }
+                //Change color
+                if (selectedItem == adapterPosition) {
+                    root.setBackgroundResource(R.drawable.bg_rounded_selcted)
+                } else {
+                    root.setBackgroundResource(R.drawable.bg_rounded_white)
+                }
 
 
             }
@@ -56,9 +67,9 @@ class CategoriesListAdapter @Inject constructor() : RecyclerView.Adapter<Categor
     }
 
 
-    private var onItemClickListener : ((Category, String) ->  Unit)? = null
+    private var onItemClickListener : ((Category) ->  Unit)? = null
 
-    fun setOnClickListener(listener:((Category,String) ->  Unit)) {
+    fun setOnClickListener(listener:((Category) ->  Unit)) {
         onItemClickListener = listener
     }
 

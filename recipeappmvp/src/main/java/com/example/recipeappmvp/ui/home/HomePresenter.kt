@@ -76,8 +76,64 @@ class HomePresenter @Inject constructor(
                     when (response.code()) {
                         in 200..202 -> {
                             response.body()?.let {
-                                if (it.meals.isNotEmpty()){
-                                    view.showFoodsListByLetter(it)
+                                if (it.meals!!.isNotEmpty()){
+                                    view.showFoodsList(it)
+                                }
+                            }
+                        }
+                    }
+
+                }, {
+                    view.showFoodsListLoading(false)
+                    view.serverError(it.message.toString())
+                })
+        }else{
+            view.internetError(false)
+        }
+    }
+
+    override fun searchFoodsList(letter: String) {
+        if (view.checkInternet()) {
+            view.showFoodsListLoading(true)
+            disposable = repository.searchFoodList(letter)
+                .applyIoScheduler()
+                .subscribe({ response ->
+                    view.showFoodsListLoading(false)
+                    when (response.code()) {
+                        in 200..202 -> {
+                            response.body()?.let {
+                                if (it.meals != null){
+                                    if (it.meals.isNotEmpty()){
+                                        view.showFoodsList(it)
+                                    }
+                                }else{
+                                    view.showEmptyList()
+                                }
+                            }
+                        }
+                    }
+
+                }, {
+                    view.showFoodsListLoading(false)
+                    view.serverError(it.message.toString())
+                })
+        }else{
+            view.internetError(false)
+        }
+    }
+
+    override fun getFoodByCategory(category: String) {
+        if (view.checkInternet()) {
+            view.showFoodsListLoading(true)
+            disposable = repository.getFoodsByCategory(category)
+                .applyIoScheduler()
+                .subscribe({ response ->
+                    view.showFoodsListLoading(false)
+                    when (response.code()) {
+                        in 200..202 -> {
+                            response.body()?.let {
+                                if (it.meals!!.isNotEmpty()){
+                                    view.showFoodsList(it)
                                 }
                             }
                         }

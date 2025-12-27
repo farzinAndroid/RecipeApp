@@ -127,10 +127,6 @@
                 <!--Content-->
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/homeFoodsContent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
                     <!--Title-->
@@ -174,5 +170,19 @@
         </LinearLayout>
 
     </ScrollView>
+    <!--Disconnected-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/homeDisLay"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchFilterLay">
+
+        <include
+            android:id="@+id/disconnectLay"
+            layout="@layout/disconnected_lay" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

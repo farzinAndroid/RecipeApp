@@ -64,10 +64,12 @@ class HomeFragment : Fragment(), HomeContracts.View {
                 .subscribe {
                     if (it.toString().length > 1) {
                         //Call Api
-
+                        presenter.searchFoodsList(it.toString())
                     }
                 }
-            //Filter
+
+
+            //Filter By letter Section
             createFilterFoodSpinnerList()
         }
     }
@@ -90,7 +92,7 @@ class HomeFragment : Fragment(), HomeContracts.View {
     }
 
     override fun showRandomFood(data: ResponseFoodList) {
-        binding.headerImg.load(data.meals[0].strMealThumb)
+        binding.headerImg.load(data.meals?.get(0)?.strMealThumb)
     }
 
     override fun showCategoriesList(categoriesList: ResponseCategoriesList) {
@@ -100,14 +102,35 @@ class HomeFragment : Fragment(), HomeContracts.View {
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL,false)
 
         }
+
+        categoriesListAdapter.setOnClickListener {
+            presenter.getFoodByCategory(it.strCategory.toString())
+        }
     }
 
-    override fun showFoodsListByLetter(foodsList: ResponseFoodList) {
+    override fun showFoodsList(foodsList: ResponseFoodList) {
+
+
+            binding.foodsList.visibility = View.VISIBLE
+            binding.homeDisLay.visibility = View.GONE
+
+
+
         binding.foodsList.apply {
-            foodsListAdapter.setData(foodsList.meals)
+            foodsListAdapter.setData(foodsList.meals!!)
             adapter = foodsListAdapter
             layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL,false)
 
+        }
+    }
+
+    override fun showEmptyList() {
+        binding.apply {
+            foodsList.visibility = View.GONE
+            homeDisLay.visibility = View.VISIBLE
+
+            disconnectLay.disImg.setImageResource(com.example.ui.R.drawable.box)
+            disconnectLay.disTxt.text = getString(com.example.ui.R.string.emptyList)
         }
     }
 

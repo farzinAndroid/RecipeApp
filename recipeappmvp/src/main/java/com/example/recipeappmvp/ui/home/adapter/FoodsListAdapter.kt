@@ -2,6 +2,7 @@ package com.example.recipeappmvp.ui.home.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -49,8 +50,22 @@ class FoodsListAdapter @Inject constructor() : RecyclerView.Adapter<FoodsListAda
                     crossfade(500)
                 }
 
+                if (item.strCategory.isNullOrEmpty().not()){
+                    itemFoodsCategory.text = item.strCategory
+                    itemFoodsCategory.visibility = View.VISIBLE
+                }else{
+                    itemFoodsCategory.visibility = View.GONE
+                }
+
+                if (item.strArea.isNullOrEmpty().not()){
+                    itemFoodsArea.text = item.strArea
+                    itemFoodsArea.visibility = View.VISIBLE
+                }else{
+                    itemFoodsArea.visibility = View.GONE
+                }
+
                 itemFoodsTitle.text = item.strMeal
-                itemFoodsCategory.text = item.strCategory
+
                 itemFoodsArea.text = item.strArea
 
                 if (item.strSource != null){
