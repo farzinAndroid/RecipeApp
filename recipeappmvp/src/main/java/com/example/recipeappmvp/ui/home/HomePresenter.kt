@@ -40,4 +40,28 @@ class HomePresenter @Inject constructor(
         }
     }
 
+    override fun getCategoriesList() {
+        if (view.checkInternet()) {
+            view.showLoading()
+            disposable = repository.getCategoriesFoodList()
+                .applyIoScheduler()
+                .subscribe({ response ->
+                    view.hideLoading()
+                    when (response.code()) {
+                        in 200..202 -> {
+                            response.body()?.let {
+                                view.showCategoriesList(it)
+                            }
+                        }
+                    }
+
+                }, {
+                    view.hideLoading()
+                    view.serverError(it.message.toString())
+                })
+        }else{
+            view.internetError(false)
+        }
+    }
+
 }

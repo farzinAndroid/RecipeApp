@@ -23,6 +23,6 @@ fun Context.isNetworkAvailable(): Boolean {
 }
 
 //SnackBar
-fun View.showSnackBar(message: String) {
-    Snackbar.make(this, message, Snackbar.LENGTH_LONG).show()
+fun View.showSnackBar(message: String){
+    Snackbar.make(this,message, Snackbar.LENGTH_SHORT).show()
 }

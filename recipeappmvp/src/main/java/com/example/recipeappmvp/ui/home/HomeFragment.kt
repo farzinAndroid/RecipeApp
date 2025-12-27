@@ -8,11 +8,16 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.example.foodappmvp.utils.isNetworkAvailable
+import com.example.foodappmvp.utils.showSnackBar
 import com.example.recipeappmvp.R
+import com.example.recipeappmvp.data.model.ResponseCategoriesList
 import com.example.recipeappmvp.data.model.ResponseFoodList
 import com.example.recipeappmvp.databinding.FragmentHomeBinding
+import com.example.recipeappmvp.ui.home.adapter.CategoriesListAdapter
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.textChanges
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -28,6 +33,9 @@ class HomeFragment : Fragment(), HomeContracts.View {
     @Inject
     lateinit var presenter: HomePresenter
 
+    @Inject
+    lateinit var categoriesListAdapter: CategoriesListAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,6 +50,7 @@ class HomeFragment : Fragment(), HomeContracts.View {
         binding.apply {
             //Call api
             presenter.getRandomFood()
+            presenter.getCategoriesList()
             //Search
             searchEdt.textChanges()
                 .skipInitialValue()
@@ -79,12 +88,27 @@ class HomeFragment : Fragment(), HomeContracts.View {
         binding.headerImg.load(data.meals[0].strMealThumb)
     }
 
-    override fun showLoading() {
+    override fun showCategoriesList(categoriesList: ResponseCategoriesList) {
+        binding.categoryList.apply {
+            categoriesListAdapter.setData(categoriesList.categories)
+            adapter = categoriesListAdapter
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL,false)
 
+        }
+    }
+
+    override fun showLoading() {
+        binding.apply {
+            homeCategoryLoading.visibility = View.VISIBLE
+            categoryList.visibility = View.GONE
+        }
     }
 
     override fun hideLoading() {
-
+        binding.apply {
+            homeCategoryLoading.visibility = View.GONE
+            categoryList.visibility = View.VISIBLE
+        }
     }
 
     override fun checkInternet(): Boolean {
@@ -95,7 +119,7 @@ class HomeFragment : Fragment(), HomeContracts.View {
     }
 
     override fun serverError(message: String) {
-
+        binding.root.showSnackBar(message)
     }
 
     override fun onStop() {
